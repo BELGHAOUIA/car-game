@@ -1,0 +1,487 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Car Tracker</title>
+ <style>
+    body {
+      /*  margin: 0 auto;*/
+      font-family: MyWebFont;
+      text-decoration: none;
+      /*color: white;*/
+      letter-spacing: 5px;
+      background-color: rgb(123, 177, 248);
+      
+    }
+
+    section {
+        margin: 0 auto;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        background-color: rgb(168, 167, 167);
+        border-radius: 5px;
+    }
+
+     canvas { 
+        background-color: black;
+        position: fixed;
+        margin-top: 12rem;
+        border-radius: 5px;
+     }
+
+
+     button {
+        border: none;
+        background-color: rgb(123, 177, 248);
+        letter-spacing: 5px;
+        padding: 20px;
+        box-shadow: 6px 6px 5px rgba(0, 0, 0, 0.3);
+        font-weight: bold;
+        border-radius: 5px;
+     }
+
+     button:hover {
+        box-shadow: 8px 8px 5px rgba(0, 0, 0, 0.8);
+     }
+
+     .hidden {
+        display: none;
+     }
+
+     @font-face {
+        font-family: 'MyWebFont';
+        src: url('Bombing.ttf');
+     }
+
+ </style>
+</head>
+<body>
+    <section>
+        <div class="start-screen">
+            <h1>Car Tracker</h1>
+            <button id="btnS" >Start Game</button>
+            <button id="btnR" class="hidden">Pause Game</button>
+            <button id="rPlay" class="hidden">Play Again</button>
+
+            <p class="hidden">Hightest Score:</p>
+            <p id="hight-score" class="hidden"></p>
+        </div>
+    <br>
+         <canvas id="game"  width="550" height="550">
+         </canvas>
+    </section>
+  <script>
+  const canvas = document.getElementById("game");
+  const ctx = canvas.getContext("2d");
+
+  let tileCount = 26;
+  let tileSize = canvas.width / tileCount-2;
+  let posX = 10;
+  let posY = 15;
+  let xVelocity = 0;
+  let yVelocity = 0;
+  let paused = true;
+  let speed = 200/7;
+  let enemyY = 0;
+  let enemyX = 3.5;
+  let i=0;
+  let j;
+  let x;
+  let y;
+  let timeLine = 0;
+  let started = false;
+  let roadY = -canvas.height;
+  let prizeX = 5;
+  let prizeY = 5;
+  let prize = 0;
+  let carPart1=[6];
+  let carPart2=[6];
+  let carPart3=[6];
+  let dead = false;
+
+  function startGame(){
+    if(!dead){
+  clearScreen();
+  checkWall();
+  changeCarPosition();
+  checkPrizeCollision();
+  drawRoad();
+  drawRoadLine();
+  if(started == true){
+    drawPrize();
+    drawEnemies();
+  }
+  drawCar();
+  drawTimeline();
+  if(timeLine>1000 && timeLine % 1000 == 0)
+  {
+    speed-=5;
+  }
+  drawScore();
+  togglePause(paused);
+  gameOver();
+  }
+}
+
+ // window.onload=function(){
+    let el = document.querySelector('#btnS');
+     console.log(el);
+
+  if(el){
+    el.addEventListener("click", function hideShowing(){
+   el = document.querySelector('#btnS');
+   el.classList.toggle('hidden');
+   el = document.querySelector('#btnR');
+   el.classList.toggle('hidden');
+   
+   if(paused == false){
+    paused = true;
+   }
+   else if(paused == true){
+    paused = false;
+   }
+   started = true;
+   startGame();
+   console.log(paused);
+  });
+
+
+  }
+
+   el = document.querySelector('#btnR');
+     console.log(el);
+
+  if(el){
+    el.addEventListener("click", function hideShowing(){
+   el = document.querySelector('#btnS');
+   el.classList.toggle('hidden');
+   el = document.querySelector('#btnR');
+   el.classList.toggle('hidden');
+   paused = true;
+   console.log(paused);
+  });
+
+  }
+
+  el = document.querySelector('#rPlay');
+     console.log(el);
+
+  if(el){
+   el.addEventListener("click", function hideShowing(){
+   el = document.querySelector('#btnR');
+   el.classList.toggle('hidden');
+   el = document.querySelector('#rPlay');
+   el.classList.toggle('hidden');
+   paused = false;
+   started = true;
+   dead = false;
+   enemyX = 3.5;
+   startGame();
+   console.log(paused);
+  });
+
+  }
+
+//}
+
+function togglePause()
+{
+    if (paused == false)
+    {
+      setTimeout(startGame, speed);
+    } 
+    else if (paused == true && dead == false)
+    {
+      ctx.fillStyle="red";
+      ctx.font = "40px Verdana";
+      ctx.fillText("Game Paused", (canvas.width/2)-170, canvas.height/2);
+
+      clearTimeout(game);
+    }
+}
+
+  function clearScreen(){
+  ctx.fillStyle = "black";
+  ctx.fillRect(0,0, canvas.width, canvas.height);
+  }
+
+  function drawRoad(){
+    ctx.fillStyle = "#0b8457";
+    ctx.fillRect(0,0, canvas.width, canvas.height);
+
+    ctx.fillStyle = "#7d7d7d";
+    ctx.fillRect(75,0, 400, canvas.height);  
+  }
+
+  function drawCar(){
+    ctx.fillStyle = "#1cb3c8";
+    ctx.fillRect(posX * tileCount, posY * tileCount, tileSize*2, tileSize*4);
+   
+    ctx.fillStyle = "white";
+    ctx.fillRect(posX * tileCount, posY * tileCount, tileSize*2, tileSize*2);
+  
+    ctx.fillStyle = "rgb(123, 177, 248)";
+    ctx.fillRect(posX * tileCount+5, posY * tileCount+2, tileSize*1.5, tileSize);
+  }
+
+  function drawEnemies(){
+    carPart1[0] = enemyY-50*30;
+    carPart2[0] = enemyY-50*30;
+    carPart3[0] = 7+enemyY-50*30;
+    drawOneEnemy(2,carPart1[0],carPart2[0],carPart3[0]);
+   
+    carPart1[1] = enemyY-30*30;
+    carPart2[1] = enemyY-30*30;
+    carPart3[1] = 7+enemyY-30*30;
+    drawOneEnemy(4,carPart1[1],carPart2[1],carPart3[1]);
+   
+    carPart1[2] = enemyY-20*10;
+    carPart2[2] = enemyY-20*10;
+    carPart3[2] = 7+enemyY-20*10;
+    drawOneEnemy(6,carPart1[2],carPart2[2],carPart3[2]);
+   
+    carPart1[3] = enemyY-10*60;
+    carPart2[3] = enemyY-10*60;
+    carPart3[3] = 7+enemyY-10*60;
+    drawOneEnemy(10,carPart1[3],carPart2[3],carPart3[3]);
+
+    carPart1[4] = enemyY-10*50;
+    carPart2[4] = enemyY-10*50;
+    carPart3[4] = 7+enemyY-10*50;
+    drawOneEnemy(3.5,carPart1[4],carPart2[4],carPart3[4]);
+
+    carPart1[5] = enemyY-50*25;
+    carPart2[5] = enemyY-50*25;
+    carPart3[5] = 7+enemyY-50*25;
+    drawOneEnemy(0,carPart1[5],carPart2[5],carPart3[5]);
+
+    enemyY+=10;
+
+  } 
+
+
+  function drawOneEnemy(x,carPart1,carPart2,carPart3){
+
+    ctx.fillStyle = "#8f1d14";
+    ctx.fillRect(enemyX * tileCount+(x*tileCount), carPart1, tileSize*2, tileSize*4);
+   
+    ctx.fillStyle = "black";
+    ctx.fillRect(enemyX * tileCount+(x*tileCount), carPart2, tileSize*2, tileSize*2);
+  
+    ctx.fillStyle = "#913535";
+    ctx.fillRect(enemyX * tileCount+(x*tileCount)+5, carPart3, tileSize*1.5, tileSize);
+
+  }
+
+  function drawTimeline(){
+    ctx.fillStyle="#913535";
+    ctx.font = "20px Verdana";
+    ctx.fillText("Time " + timeLine+ "s", 10, 20);
+    if(started == true){
+        timeLine++;
+    }
+}
+
+  function drawRoadLine(){
+    ctx.fillStyle = "white";
+    ctx.fillRect(4*tileSize, 0, 2, canvas.height);
+    ctx.fillRect(24.6*tileSize, 0, 2, canvas.height);
+
+    for(j=0;j<100;j++)
+    {
+      ctx.fillRect(canvas.width/2, roadY+j*100, 2, canvas.height/tileSize);
+    }
+    roadY++;
+
+  }
+
+  drawRoadLine();
+
+  function drawScore(){
+    ctx.fillStyle="#f89d13";
+    ctx.font = "20px Verdana";
+    ctx.fillText("Score " + prize, canvas.width-150, 20);
+}
+
+  function drawPrize(){
+    ctx.fillStyle = "#f89d13";
+    ctx.fillRect(prizeX * tileCount, prizeY, tileSize, tileSize);
+    prizeY+=10;
+  }
+
+
+    function changeCarPosition(){
+    posX = posX + xVelocity;
+    posY = posY + yVelocity;
+   }
+
+   let max = 17;
+   let min = 3;
+
+   function checkWall(){
+             
+          if(prizeY > canvas.height)
+          {
+            prizeY = 0;
+
+           // prizeX = Math.floor(Math.random()* 18);
+           // console.log("------prizeX------", prizeX);
+
+           // while(prizeX* tileCount < 3 && prizeX* tileCount > 17.3)
+              prizeX = Math.floor(Math.random() * (max - min + 1)) + min;
+           // console.log("------prizeX------", prizeX);
+
+          }
+
+          if(roadY+j*100 > canvas.height)
+          {
+            console.log(roadY);
+            j = 0;
+            roadY = 0;
+            drawRoadLine();
+          }
+
+          if(carPart1[0] > canvas.height)
+          {
+            enemyY = 0;
+           // carPart1 = carPart2 = carPart3 = 0;
+           // y = 0;
+          }
+
+          if(posX < 2 && posX > 18)
+          {
+            speed = 1000;
+          }
+
+   }
+document.body.addEventListener("keydown", keyDown);
+document.body.addEventListener("keyup",keyUp)
+
+  function keyUp(event){
+    xVelocity = 0;
+    yVelocity = 0;
+  }
+  function keyDown(event){
+ 
+    //up && down disabled
+    /*if(event.keyCode == 38){
+        yVelocity = -0.2;
+    }
+
+    if(event.keyCode == 40){
+        yVelocity = 0.2;
+    }
+*/
+    //started = true;
+
+    //right && left
+    if(event.keyCode == 37){
+        xVelocity = -0.2;
+    }
+
+    if(event.keyCode == 39){
+        xVelocity = 0.2;
+    }
+}
+
+function testCondition1(x, y){
+    if(posX* tileCount >= enemyX* tileCount+(x*tileCount) && posX* tileCount <= enemyX* tileCount+(x*tileCount)+tileSize*2){
+       if(posY* tileCount >= carPart1[y] && posY* tileCount <= carPart1[y]+tileSize*4)
+         {
+              return 1;
+         }
+         else if(posY* tileCount+tileSize*4 >= carPart1[y] && posY* tileCount+tileSize*4 <= carPart1[y]+tileSize*4)
+         {
+             return 1;
+         }
+     }
+    else return 0;
+
+}
+
+function testCondition2(x, y){
+    if(posX* tileCount+tileSize*2 >= enemyX* tileCount+(x*tileCount) && posX* tileCount+tileSize*2 <= enemyX* tileCount+(x*tileCount)+tileSize*2){
+       if(posY* tileCount >= carPart1[y] && posY* tileCount <= carPart1[y]+tileSize*4)
+         {
+              return 1;
+         }
+         else if(posY* tileCount+tileSize*4 >= carPart1[y] && posY* tileCount+tileSize*4 <= carPart1[y]+tileSize*4)
+         {
+             return 1;
+         }
+     }
+    else return 0;
+
+}
+
+
+function gameOver(){
+
+             
+         /* if(posX* tileCount >= enemyX* tileCount+(2*tileCount) && posX* tileCount <= enemyX* tileCount+(2*tileCount)+tileSize*2){
+            if(posY* tileCount >= carPart1[0] && posY* tileCount <= carPart1[0]+tileSize*4)*/
+            if(testCondition1(2,0) === 1 || testCondition1(4,1) === 1 || testCondition1(6,2) === 1 || testCondition1(10,3) === 1 || testCondition1(3.5,4) === 1 || testCondition1(0,5))
+            {
+              dead = true;
+              if(dead == true && paused == false)
+             youDied();
+            }
+            else if(testCondition2(2,0) === 1 || testCondition2(4,1) === 1 || testCondition2(6,2) === 1 || testCondition2(10,3) === 1 || testCondition2(3.5,4) === 1 || testCondition2(0,5))
+            {
+              dead = true;
+              if(dead == true && paused == false)
+             youDied();
+            }
+
+}
+
+      function youDied(){    
+ // if(gameOver())
+  {
+             speed = 200/7;
+             el = document.querySelector('#rPlay');
+             el.classList.toggle('hidden');
+             el = document.querySelector('#btnR');
+             el.classList.toggle('hidden');
+             paused = true;
+    clearScreen();
+    drawRoadLine();
+    ctx.fillStyle="red";
+    ctx.font = "50px Verdana";
+    ctx.fillText("YOU DIED! ", (canvas.width/2)-170, canvas.height/2);
+    ctx.fillStyle="darkgreen";
+    ctx.font = "25px Verdana";
+    ctx.fillText("Score: " + prize, (canvas.width/2)-180, canvas.height/2+40);
+    ctx.fillText("Time elappsed: " + timeLine + "s", (canvas.width/2)-180, canvas.height/2+80);
+    prize = 0;
+    timeLine = 0;
+    started = false;
+    enemyX = enemyY = 0;
+   // clearTimeout(game);
+  // freeze();
+  }
+}
+
+function checkPrizeCollision(){
+     
+  if(prizeX* tileCount >= posX* tileCount && prizeX* tileCount <= posX* tileCount+tileSize*2){
+       if(prizeY >= posY* tileCount && prizeY <= posY* tileCount + tileSize*4)
+         {
+              prize++;
+              prizeY = canvas.height;
+         }
+  }
+  else if(prizeX* tileCount+tileSize >= posX* tileCount && prizeX* tileCount+tileSize <= posX* tileCount+tileSize*2){
+        if(prizeY >= posY* tileCount && prizeY <= posY* tileCount+tileSize*4)
+         {
+              prize++;
+              prizeY = canvas.height;
+         }
+    }
+
+}
+  </script>
+
+
+</body>
+</html>
