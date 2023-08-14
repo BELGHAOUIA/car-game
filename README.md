@@ -2,6 +2,7 @@ Car Tracker - HTML5 Canvas
 Welcome to the Car Game repository! This is a simple and fun car game built using HTML, CSS, and JavaScript with the help of the HTML5 Canvas element. In this game, you'll navigate your car through a series of oncoming enemy cars, trying to avoid collisions and achieve the highest score possible.
 
 Car Game Screenshot
+
 ![Capture web_14-8-2023_93535_](https://github.com/BELGHAOUIA/car-game/assets/98391495/4824073f-ffbf-46d0-ab56-907aaeabc1ec)
 
 Features
