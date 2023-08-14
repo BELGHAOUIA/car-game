@@ -16,6 +16,11 @@ Keep track of your score as you successfully navigate through the traffic.
 
 ![Capture web_14-8-2023_93611_](https://github.com/BELGHAOUIA/car-game/assets/98391495/a31073e7-3a76-4322-8e79-d786bcbcf370)
 
+demo
+
+![2023-08-14_09h48_09](https://github.com/BELGHAOUIA/car-game/assets/98391495/9efcb0b4-15e9-4d0d-9c18-de5812ac5977)
+
+
 Getting Started
 To play the game, simply follow these steps:
 
