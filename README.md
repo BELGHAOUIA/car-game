@@ -36,7 +36,7 @@ Clone the repository to your local machine using the following command:
 Open the index.html file in your preferred web browser.
 click the start button to start the game.
 Use the left and right arrow keys to control your car's movement.
-Try to avoid collisions with the enemy cars for as long as possible to increase your score.
+Try to avoid collisions with the enemy cars for as long as possible to increase your score while collecting yellow gems.
 
 How It Works
 The game is built using HTML, CSS, and JavaScript. The core gameplay is powered by the HTML5 Canvas element, which provides a dynamic and interactive drawing surface for the game.
